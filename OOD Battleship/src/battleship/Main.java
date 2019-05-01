@@ -17,7 +17,7 @@ import javafx.stage.*;
 
 public abstract class Main extends Application{
 	//Main me = this;
-	boolean myTurn = true;
+	boolean myTurn = false;
 	int shipsPlaced = 0;
 	ReceivedCommandFactory fact = new ReceivedCommandFactory();
 	Image boardPlayer = new Image("https://i.imgur.com/WCVmiVJ.png");
@@ -38,8 +38,8 @@ public abstract class Main extends Application{
 	public Pane totalInit() {
 		//make the pane that serves as the foundation for the whole thing
 		Pane boardPane = new Pane();
-		boardPane.setMinSize(700, 500);
-		boardPane.setMaxSize(700, 500);
+		boardPane.setMinSize(650, 430);
+		boardPane.setMaxSize(650, 430);
 		turnDisp = new Label("Welcome to battleship!");
 		ImageView boardPlayDisp = new ImageView(boardPlayer);
 		ImageView boardFoeDisp = new ImageView(boardFoe);
@@ -77,7 +77,7 @@ public abstract class Main extends Application{
 					public void handle(MouseEvent event) {
 						Space source = (Space)event.getSource();
 						//only make a command if it is your turn when you click the space [1]
-						if(myTurn && !source.chosen) {
+						if(!source.chosen) {
 							// abastgrtack RIP Pedro, he had a heart attack writing this line
 							shipPlacement(source);
 						}
@@ -112,8 +112,98 @@ public abstract class Main extends Application{
 			}
 		}
 	}
-	//this is so we can select a new space to place ships
-	abstract void shipPlacement (Space selection);	
+	//this is so we can select a new space to place ships only on unoccupied spaces
+	void shipPlacement(Space selection) {
+		int ex = selection.x;
+		int ey = selection.y;
+		Space[] spaces;
+		Space origin = boardPlayerState[ex][ey];
+		Ship newShip;
+		switch (shipsPlaced) {
+		case 0:
+			if (!selection.hasShip && ex<=5) {
+				spaces = new Space[5];
+				for(int i = 0;i<=4;i++) {
+					spaces[i] = boardPlayerState[ex+i][ey];
+				}
+				if(allEmpty(spaces)) {
+					newShip = new Carrier(spaces); 
+					ships.add(newShip);
+					redrawBoards();
+					shipsPlaced++;
+				}
+			}
+			break;
+
+		case 1:
+			if (!selection.hasShip && ey<=6) {
+				spaces = new Space[4];
+				for(int i = 0;i<=3;i++) {
+					spaces[i] = boardPlayerState[ex][ey+i];
+				}
+				if(allEmpty(spaces)) {
+					newShip = new Battleship(spaces); 
+					ships.add(newShip);
+					redrawBoards();
+					shipsPlaced++;
+				}
+			}
+			break;
+
+		case 2:
+			if (!selection.hasShip && ex<=7) {
+				spaces = new Space[3];
+				for(int i = 0;i<=2;i++) {
+					spaces[i] = boardPlayerState[ex+i][ey];
+				}
+				if(allEmpty(spaces)) {
+					newShip = new Submarine(spaces); 
+					ships.add(newShip);
+					redrawBoards();
+					shipsPlaced++;
+				}
+			}
+			break;
+
+		case 3:
+			if (!selection.hasShip && ey<=7) {
+				spaces = new Space[3];
+				for(int i = 0;i<=2;i++) {
+					spaces[i] = boardPlayerState[ex][ey+i];
+				}
+				if(allEmpty(spaces)) {
+					newShip = new Cruiser(spaces); 
+					ships.add(newShip);
+					redrawBoards();
+					shipsPlaced++;
+				}
+			}
+			break;
+		case 4:
+			if (!selection.hasShip && ey<=8) {
+				spaces = new Space[2];
+				for(int i = 0;i<=1;i++) {
+					spaces[i] = boardPlayerState[ex][ey+i];
+				}
+				if(allEmpty(spaces)) {
+					newShip = new Destroyer(spaces); 
+					ships.add(newShip);
+					redrawBoards();
+					shipsPlaced++;
+					donePlacing();
+				}
+			}
+			break;
+
+		default:
+			break;
+
+		}
+
+	}
+	
+	//depending on the class this is implemented in, this should call the setTurn method true or false
+	abstract void donePlacing();
 	
 	//initialize the board state Space arrays to be blank on both sides
 	public void reinitBoards() {
@@ -163,6 +253,14 @@ public abstract class Main extends Application{
 			if(!s.isDestroyed()) {
 				return false;
 			}
+		}
+		return true;
+	}
+	
+	//returns true if all the spaces do not have a ship
+	public boolean allEmpty(Space[] spaces) {
+		for(Space s:spaces) {
+			if(s.hasShip()) return false;
 		}
 		return true;
 	}

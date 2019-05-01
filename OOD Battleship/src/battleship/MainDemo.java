@@ -11,6 +11,7 @@ public class MainDemo extends Main {
 	MainDemo me = new MainDemo();
 	@Override
 	public void start(Stage primStage) throws Exception {
+		myTurn = true;
 		//initialize it all
 		Pane boardPane = totalInit();
 		//TODO: Remove demo settings
@@ -47,6 +48,13 @@ public class MainDemo extends Main {
 
 	@Override
 	void shipPlacement(Space selection) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	void donePlacing() {
 		// TODO Auto-generated method stub
 		
 	}

@@ -35,15 +35,16 @@ public class HostMain extends Main {
 	@Override
 	public void start(Stage primStage) throws Exception {
 		//myTurn = false;
-		//UI Stuff
+		//UI Stuff (host=specific)
 		Pane contentPane = totalInit();
 		Scene boardScene = new Scene(contentPane);
 		Label lblPort = new Label("Port");
-		lblPort.setLayoutX(160);
-		lblPort.setLayoutY(360);
+		//lblPort.setLayoutX(160);
+		lblPort.setLayoutY(380);
 		TextField txtPort = new TextField();
 		txtPort.setLayoutY(355);
 		Button btnHost = new Button("Host");
+		btnHost.setLayoutY(400);
 		btnHost.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -60,7 +61,6 @@ public class HostMain extends Main {
 		contentPane.getChildren().add(lblPort);
 		contentPane.getChildren().add(txtPort);
 		contentPane.getChildren().add(btnHost);
-		btnHost.setLayoutY(385);
 		primStage.setScene(boardScene);
 		primStage.show();
 	}
@@ -69,10 +69,12 @@ public class HostMain extends Main {
 	public void stop() {
 		try {
 			dead = true;
-			ss.close();
-			din.close();
-			dout.close();
-			s.close();
+			if(ss != null) {
+				ss.close();
+				din.close();
+				dout.close();
+				s.close();
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -95,68 +97,6 @@ public class HostMain extends Main {
 	public String toString() {
 		return "Hostmain";
 	}
-
-	//Placement of 5 ships only on non occupied spaces
-	@Override
-	void shipPlacement(Space selection) {
-		int ex = selection.x;
-		int ey = selection.y;
-		Space[] spaces;
-		Space origin = boardPlayerState[ex][ey];
-		ExShip newShip;
-		switch (shipsPlaced) {
-		case 0:
-			if (!selection.hasShip) {
-				newShip = new ExShip(origin,new Space[] {origin}); 
-				ships.add(newShip);
-				redrawBoards();
-				shipsPlaced++;
-			}
-			break;
-
-		case 1:
-			if (!selection.hasShip) {
-				newShip = new ExShip(origin,new Space[] {origin}); 
-				ships.add(newShip);
-				redrawBoards();
-				shipsPlaced++;
-			}
-			break;
-
-		case 2:
-			if (!selection.hasShip) {
-				newShip = new ExShip(origin,new Space[] {origin}); 
-				ships.add(newShip);
-				redrawBoards();
-				shipsPlaced++;
-			}
-			break;
-
-		case 3:
-			if (!selection.hasShip) {
-				newShip = new ExShip(origin,new Space[] {origin}); 
-				ships.add(newShip);
-				redrawBoards();
-				shipsPlaced++;
-			}
-			break;
-		case 4:
-			if (!selection.hasShip) {
-				newShip = new ExShip(origin,new Space[] {origin}); 
-				ships.add(newShip);
-				redrawBoards();
-				setTurn(true);
-				shipsPlaced++;
-			}
-			break;
-
-		default:
-			break;
-
-		}
-
-	}
-	
 
 	//this is the socket handler thread- it continually listens to the socket in the background and uses the results to make commands
 	public void startHandler() {
@@ -203,6 +143,11 @@ public class HostMain extends Main {
 				e.printStackTrace();
 			}
 		}).start();
+	}
+
+	@Override
+	void donePlacing() {
+		setTurn(true);
 	}
 
 }
